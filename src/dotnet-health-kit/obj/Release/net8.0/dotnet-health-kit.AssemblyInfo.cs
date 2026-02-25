@@ -16,7 +16,7 @@ using System.Reflection;
     " for databases, HTTP dependencies, disk space, and memory with three-state model" +
     ", TTL caching, and Kubernetes-ready endpoints."))]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1d9150d363e56fa6a958d89ad30e164dc0b515a3")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+25e8f4096fbf60d2f0195fe12a73f2b008fc3114")]
 [assembly: System.Reflection.AssemblyProductAttribute("JG.HealthKit")]
 [assembly: System.Reflection.AssemblyTitleAttribute("JG.HealthKit")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

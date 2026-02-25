@@ -9,7 +9,7 @@
     <readme>README.md</readme>
     <description>Lightweight health checks and readiness probes for .NET services. Built-in checks for databases, HTTP dependencies, disk space, and memory with three-state model, TTL caching, and Kubernetes-ready endpoints.</description>
     <tags>health-check readiness liveness kubernetes dotnet health probes</tags>
-    <repository type="git" url="https://github.com/jamesgober/dotnet-health-kit" commit="1d9150d363e56fa6a958d89ad30e164dc0b515a3" />
+    <repository type="git" url="https://github.com/jamesgober/dotnet-health-kit" commit="25e8f4096fbf60d2f0195fe12a73f2b008fc3114" />
     <dependencies>
       <group targetFramework="net8.0" />
     </dependencies>
