@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/dotnet-health-kit/dotnet-health-kit.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/dotnet-health-kit.Tests/dotnet-health-kit.Tests.csproj" />
+  </Folder>
+</Solution>

@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>JG.HealthKit</id>
+    <version>1.0.0</version>
+    <authors>James Gober</authors>
+    <license type="expression">Apache-2.0</license>
+    <licenseUrl>https://licenses.nuget.org/Apache-2.0</licenseUrl>
+    <readme>README.md</readme>
+    <description>Lightweight health checks and readiness probes for .NET services. Built-in checks for databases, HTTP dependencies, disk space, and memory with three-state model, TTL caching, and Kubernetes-ready endpoints.</description>
+    <tags>health-check readiness liveness kubernetes dotnet health probes</tags>
+    <repository type="git" url="https://github.com/jamesgober/dotnet-health-kit" commit="1d9150d363e56fa6a958d89ad30e164dc0b515a3" />
+    <dependencies>
+      <group targetFramework="net8.0" />
+    </dependencies>
+    <frameworkReferences>
+      <group targetFramework="net8.0">
+        <frameworkReference name="Microsoft.AspNetCore.App" />
+      </group>
+    </frameworkReferences>
+  </metadata>
+  <files>
+    <file src="C:\Dev\libs\dotnet\dotnet-health-kit\src\dotnet-health-kit\bin\Release\net8.0\JG.HealthKit.dll" target="lib\net8.0\JG.HealthKit.dll" />
+    <file src="C:\Dev\libs\dotnet\dotnet-health-kit\src\dotnet-health-kit\bin\Release\net8.0\JG.HealthKit.xml" target="lib\net8.0\JG.HealthKit.xml" />
+    <file src="C:\Dev\libs\dotnet\dotnet-health-kit\README.md" target="\README.md" />
+  </files>
+</package>

@@ -1,0 +1,834 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>JG.HealthKit</name>
+    </assembly>
+    <members>
+        <member name="T:JG.HealthKit.HealthCheckContext">
+            <summary>
+            Provides context about the currently executing health check.
+            </summary>
+            <remarks>
+            Passed to <see cref="M:JG.HealthKit.IHealthCheck.CheckAsync(JG.HealthKit.HealthCheckContext,System.Threading.CancellationToken)"/> so implementations can
+            inspect the registration metadata (name, tags, failure status) when producing a result.
+            </remarks>
+        </member>
+        <member name="P:JG.HealthKit.HealthCheckContext.Registration">
+            <summary>
+            Gets the registration associated with the executing health check.
+            </summary>
+        </member>
+        <member name="M:JG.HealthKit.HealthCheckContext.#ctor(JG.HealthKit.HealthCheckRegistration)">
+            <summary>
+            Initializes a new instance of <see cref="T:JG.HealthKit.HealthCheckContext"/>.
+            </summary>
+            <param name="registration">The registration metadata for this check.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="registration"/> is <see langword="null"/>.</exception>
+        </member>
+        <member name="T:JG.HealthKit.HealthCheckRegistration">
+            <summary>
+            Describes a health check registration including its name, factory, tags, timeout, and failure status.
+            </summary>
+            <remarks>
+            Registrations are immutable after <see cref="T:JG.HealthKit.HealthKitOptions"/> is sealed during service configuration.
+            Tags control which endpoints include the check (e.g., liveness vs. readiness).
+            </remarks>
+        </member>
+        <member name="P:JG.HealthKit.HealthCheckRegistration.Name">
+            <summary>Gets the unique name of the health check.</summary>
+        </member>
+        <member name="P:JG.HealthKit.HealthCheckRegistration.Factory">
+            <summary>
+            Gets the factory that creates the <see cref="T:JG.HealthKit.IHealthCheck"/> instance.
+            </summary>
+        </member>
+        <member name="P:JG.HealthKit.HealthCheckRegistration.FailureStatus">
+            <summary>
+            Gets or sets the status to report when the check throws an unhandled exception.
+            Defaults to <see cref="F:JG.HealthKit.HealthStatus.Unhealthy"/>.
+            </summary>
+        </member>
+        <member name="P:JG.HealthKit.HealthCheckRegistration.Tags">
+            <summary>
+            Gets the tags associated with this check. Tags determine endpoint inclusion
+            (e.g., <c>"live"</c> for liveness, <c>"ready"</c> for readiness).
+            </summary>
+        </member>
+        <member name="P:JG.HealthKit.HealthCheckRegistration.Timeout">
+            <summary>
+            Gets or sets an optional timeout for this individual check.
+            When <see langword="null"/>, the default timeout from <see cref="T:JG.HealthKit.HealthKitOptions"/> is used.
+            </summary>
+        </member>
+        <member name="M:JG.HealthKit.HealthCheckRegistration.#ctor(System.String,System.Func{System.IServiceProvider,JG.HealthKit.IHealthCheck},JG.HealthKit.HealthStatus,System.Collections.Generic.ISet{System.String},System.Nullable{System.TimeSpan})">
+            <summary>
+            Initializes a new instance of <see cref="T:JG.HealthKit.HealthCheckRegistration"/>.
+            </summary>
+            <param name="name">The unique name of the health check.</param>
+            <param name="factory">A factory that produces the <see cref="T:JG.HealthKit.IHealthCheck"/> instance.</param>
+            <param name="failureStatus">The status to report on unhandled exceptions.</param>
+            <param name="tags">The tags for endpoint filtering.</param>
+            <param name="timeout">An optional per-check timeout.</param>
+            <exception cref="T:System.ArgumentException"><paramref name="name"/> is null or whitespace.</exception>
+            <exception cref="T:System.ArgumentNullException"><paramref name="factory"/> or <paramref name="tags"/> is <see langword="null"/>.</exception>
+        </member>
+        <member name="T:JG.HealthKit.HealthCheckResult">
+            <summary>
+            The result of a single health check execution.
+            </summary>
+            <remarks>
+            This is a value type to minimize allocations on the hot path.
+            Use the static factory methods <see cref="M:JG.HealthKit.HealthCheckResult.Healthy(System.String,System.Collections.Generic.IReadOnlyDictionary{System.String,System.Object})"/>, <see cref="M:JG.HealthKit.HealthCheckResult.Degraded(System.String,System.Exception,System.Collections.Generic.IReadOnlyDictionary{System.String,System.Object})"/>,
+            and <see cref="M:JG.HealthKit.HealthCheckResult.Unhealthy(System.String,System.Exception,System.Collections.Generic.IReadOnlyDictionary{System.String,System.Object})"/> to create instances.
+            This type is immutable and thread-safe.
+            </remarks>
+        </member>
+        <member name="P:JG.HealthKit.HealthCheckResult.Status">
+            <summary>Gets the aggregate status of the health check.</summary>
+        </member>
+        <member name="P:JG.HealthKit.HealthCheckResult.Description">
+            <summary>Gets a human-readable description of the check result.</summary>
+        </member>
+        <member name="P:JG.HealthKit.HealthCheckResult.Duration">
+            <summary>Gets the wall-clock duration of the check execution.</summary>
+        </member>
+        <member name="P:JG.HealthKit.HealthCheckResult.Exception">
+            <summary>Gets the exception that caused the check to fail, if any.</summary>
+        </member>
+        <member name="P:JG.HealthKit.HealthCheckResult.Data">
+            <summary>Gets optional key-value data associated with the check result.</summary>
+        </member>
+        <member name="M:JG.HealthKit.HealthCheckResult.Healthy(System.String,System.Collections.Generic.IReadOnlyDictionary{System.String,System.Object})">
+            <summary>
+            Creates a result representing a healthy component.
+            </summary>
+            <param name="description">An optional description of the healthy state.</param>
+            <param name="data">Optional key-value data to include in the result.</param>
+            <returns>A <see cref="T:JG.HealthKit.HealthCheckResult"/> with <see cref="F:JG.HealthKit.HealthStatus.Healthy"/> status.</returns>
+        </member>
+        <member name="M:JG.HealthKit.HealthCheckResult.Degraded(System.String,System.Exception,System.Collections.Generic.IReadOnlyDictionary{System.String,System.Object})">
+            <summary>
+            Creates a result representing a degraded component.
+            </summary>
+            <param name="description">A description of the degraded condition.</param>
+            <param name="exception">An optional exception associated with the degraded state.</param>
+            <param name="data">Optional key-value data to include in the result.</param>
+            <returns>A <see cref="T:JG.HealthKit.HealthCheckResult"/> with <see cref="F:JG.HealthKit.HealthStatus.Degraded"/> status.</returns>
+        </member>
+        <member name="M:JG.HealthKit.HealthCheckResult.Unhealthy(System.String,System.Exception,System.Collections.Generic.IReadOnlyDictionary{System.String,System.Object})">
+            <summary>
+            Creates a result representing an unhealthy component.
+            </summary>
+            <param name="description">A description of the failure.</param>
+            <param name="exception">An optional exception associated with the failure.</param>
+            <param name="data">Optional key-value data to include in the result.</param>
+            <returns>A <see cref="T:JG.HealthKit.HealthCheckResult"/> with <see cref="F:JG.HealthKit.HealthStatus.Unhealthy"/> status.</returns>
+        </member>
+        <member name="M:JG.HealthKit.HealthCheckResult.WithDuration(System.TimeSpan)">
+            <summary>
+            Returns a new <see cref="T:JG.HealthKit.HealthCheckResult"/> with the specified duration applied.
+            </summary>
+        </member>
+        <member name="M:JG.HealthKit.HealthCheckResult.Equals(JG.HealthKit.HealthCheckResult)">
+            <inheritdoc />
+        </member>
+        <member name="M:JG.HealthKit.HealthCheckResult.Equals(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:JG.HealthKit.HealthCheckResult.GetHashCode">
+            <inheritdoc />
+        </member>
+        <member name="M:JG.HealthKit.HealthCheckResult.op_Equality(JG.HealthKit.HealthCheckResult,JG.HealthKit.HealthCheckResult)">
+            <summary>Equality operator.</summary>
+        </member>
+        <member name="M:JG.HealthKit.HealthCheckResult.op_Inequality(JG.HealthKit.HealthCheckResult,JG.HealthKit.HealthCheckResult)">
+            <summary>Inequality operator.</summary>
+        </member>
+        <member name="T:JG.HealthKit.HealthCheckTags">
+            <summary>
+            Well-known tag constants for health check endpoint filtering.
+            </summary>
+        </member>
+        <member name="F:JG.HealthKit.HealthCheckTags.Live">
+            <summary>
+            Tag for checks included in the liveness probe endpoint (<c>/health/live</c>).
+            </summary>
+        </member>
+        <member name="F:JG.HealthKit.HealthCheckTags.Ready">
+            <summary>
+            Tag for checks included in the readiness probe endpoint (<c>/health/ready</c>).
+            This is the default tag applied when no tags are specified.
+            </summary>
+        </member>
+        <member name="T:JG.HealthKit.HealthReport">
+            <summary>
+            An aggregated report containing the results of all executed health checks.
+            </summary>
+            <remarks>
+            The overall <see cref="P:JG.HealthKit.HealthReport.Status"/> is the worst (highest ordinal) status across all entries.
+            This type is immutable and thread-safe once constructed.
+            </remarks>
+        </member>
+        <member name="P:JG.HealthKit.HealthReport.Status">
+            <summary>Gets the aggregate health status across all check entries.</summary>
+        </member>
+        <member name="P:JG.HealthKit.HealthReport.TotalDuration">
+            <summary>Gets the total wall-clock time taken to execute all checks.</summary>
+        </member>
+        <member name="P:JG.HealthKit.HealthReport.Entries">
+            <summary>
+            Gets the individual check results keyed by registration name.
+            </summary>
+        </member>
+        <member name="M:JG.HealthKit.HealthReport.#ctor(System.Collections.Generic.IReadOnlyDictionary{System.String,JG.HealthKit.HealthCheckResult},JG.HealthKit.HealthStatus,System.TimeSpan)">
+            <summary>
+            Initializes a new instance of <see cref="T:JG.HealthKit.HealthReport"/>.
+            </summary>
+            <param name="entries">The individual check results keyed by name.</param>
+            <param name="status">The aggregate status.</param>
+            <param name="totalDuration">The total execution duration.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="entries"/> is <see langword="null"/>.</exception>
+        </member>
+        <member name="P:JG.HealthKit.HealthReport.Empty">
+            <summary>
+            Creates an empty healthy report with zero duration.
+            </summary>
+        </member>
+        <member name="T:JG.HealthKit.HealthStatus">
+            <summary>
+            Represents the health status of a component or the overall system.
+            </summary>
+            <remarks>
+            Values are ordered by severity. <see cref="F:JG.HealthKit.HealthStatus.Healthy"/> is the best state,
+            <see cref="F:JG.HealthKit.HealthStatus.Unhealthy"/> is the worst. Aggregate status is determined by
+            taking the maximum value across all individual check results.
+            </remarks>
+        </member>
+        <member name="F:JG.HealthKit.HealthStatus.Healthy">
+            <summary>The component is working normally.</summary>
+        </member>
+        <member name="F:JG.HealthKit.HealthStatus.Degraded">
+            <summary>The component is functioning but with reduced capability or elevated resource usage.</summary>
+        </member>
+        <member name="F:JG.HealthKit.HealthStatus.Unhealthy">
+            <summary>The component is not functioning and the service cannot handle requests.</summary>
+        </member>
+        <member name="T:JG.HealthKit.IHealthCheck">
+            <summary>
+            Defines a health check that can report the health of a component or subsystem.
+            </summary>
+            <remarks>
+            Implementations must be thread-safe when registered as singletons.
+            All I/O operations should be async and respect the provided <see cref="T:System.Threading.CancellationToken"/>.
+            </remarks>
+        </member>
+        <member name="M:JG.HealthKit.IHealthCheck.CheckAsync(JG.HealthKit.HealthCheckContext,System.Threading.CancellationToken)">
+            <summary>
+            Runs the health check and returns a result indicating the component's status.
+            </summary>
+            <param name="context">Context containing the check's registration metadata.</param>
+            <param name="cancellationToken">A token to observe for cancellation requests.</param>
+            <returns>A <see cref="T:JG.HealthKit.HealthCheckResult"/> describing the component's health.</returns>
+        </member>
+        <member name="T:JG.HealthKit.IHealthReportFormatter">
+            <summary>
+            Formats a <see cref="T:JG.HealthKit.HealthReport"/> for HTTP response output.
+            </summary>
+        </member>
+        <member name="P:JG.HealthKit.IHealthReportFormatter.ContentType">
+            <summary>Gets the content type produced by this formatter (e.g., <c>application/json</c>).</summary>
+        </member>
+        <member name="M:JG.HealthKit.IHealthReportFormatter.WriteAsync(System.IO.Stream,JG.HealthKit.HealthReport,System.Threading.CancellationToken)">
+            <summary>
+            Writes the health report to the specified stream.
+            </summary>
+            <param name="stream">The output stream to write to.</param>
+            <param name="report">The health report to format.</param>
+            <param name="cancellationToken">A token to observe for cancellation.</param>
+        </member>
+        <member name="T:JG.HealthKit.IStartupHealthSignal">
+            <summary>
+            Signals application startup completion to health check probes.
+            </summary>
+            <remarks>
+            Inject this interface and call <see cref="M:JG.HealthKit.IStartupHealthSignal.MarkReady"/> once all initialization
+            is complete. Until then, the startup health check reports <see cref="F:JG.HealthKit.HealthStatus.Unhealthy"/>,
+            which prevents Kubernetes readiness probes from routing traffic to a partially initialized instance.
+            This type is thread-safe.
+            </remarks>
+        </member>
+        <member name="P:JG.HealthKit.IStartupHealthSignal.IsReady">
+            <summary>Gets whether the application has signaled startup completion.</summary>
+        </member>
+        <member name="M:JG.HealthKit.IStartupHealthSignal.MarkReady">
+            <summary>
+            Marks the application as ready. This is a one-way operation and cannot be reversed.
+            </summary>
+        </member>
+        <member name="T:JG.HealthKit.Checks.DatabaseHealthCheck">
+            <summary>
+            Health check that verifies database connectivity by opening a connection
+            and optionally executing a test query.
+            </summary>
+            <remarks>
+            Uses the caller-provided <see cref="T:System.Data.Common.DbConnection"/> factory so there is no
+            dependency on a specific database provider. Each invocation creates, opens,
+            and disposes its own connection. Thread-safe.
+            </remarks>
+        </member>
+        <member name="M:JG.HealthKit.Checks.DatabaseHealthCheck.#ctor(System.Func{System.Data.Common.DbConnection},System.String)">
+            <summary>
+            Initializes a new instance of <see cref="T:JG.HealthKit.Checks.DatabaseHealthCheck"/>.
+            </summary>
+            <param name="connectionFactory">A factory that creates a new <see cref="T:System.Data.Common.DbConnection"/>.</param>
+            <param name="testQuery">
+            An optional SQL query to execute after opening the connection (e.g., <c>"SELECT 1"</c>).
+            When <see langword="null"/>, only connection open is verified.
+            </param>
+        </member>
+        <member name="M:JG.HealthKit.Checks.DatabaseHealthCheck.CheckAsync(JG.HealthKit.HealthCheckContext,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="T:JG.HealthKit.Checks.DelegateHealthCheck">
+            <summary>
+            Wraps a delegate as an <see cref="T:JG.HealthKit.IHealthCheck"/> implementation.
+            </summary>
+        </member>
+        <member name="M:JG.HealthKit.Checks.DelegateHealthCheck.#ctor(System.Func{System.Threading.CancellationToken,System.Threading.Tasks.ValueTask{JG.HealthKit.HealthCheckResult}})">
+            <summary>
+            Initializes a new instance of <see cref="T:JG.HealthKit.Checks.DelegateHealthCheck"/>.
+            </summary>
+            <param name="check">The delegate to invoke when the check executes.</param>
+        </member>
+        <member name="M:JG.HealthKit.Checks.DelegateHealthCheck.CheckAsync(JG.HealthKit.HealthCheckContext,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="T:JG.HealthKit.Checks.DiskSpaceHealthCheck">
+            <summary>
+            Health check that monitors available disk space against configured thresholds.
+            </summary>
+            <remarks>
+            Supports three-state reporting: healthy when above the warning threshold,
+            degraded when between warning and critical, unhealthy when below critical.
+            Completes synchronously (no I/O), so returns <see cref="T:System.Threading.Tasks.ValueTask`1"/> directly.
+            Thread-safe.
+            </remarks>
+        </member>
+        <member name="M:JG.HealthKit.Checks.DiskSpaceHealthCheck.#ctor(System.String,System.Int64,System.Int64)">
+            <summary>
+            Initializes a new instance of <see cref="T:JG.HealthKit.Checks.DiskSpaceHealthCheck"/>.
+            </summary>
+            <param name="driveName">
+            The drive or mount point to check (e.g., <c>"C:\"</c> on Windows, <c>"/"</c> on Linux).
+            </param>
+            <param name="minimumFreeBytes">The minimum free bytes before reporting unhealthy.</param>
+            <param name="degradedThresholdBytes">
+            The free bytes threshold below which the check reports degraded.
+            Must be greater than or equal to <paramref name="minimumFreeBytes"/>.
+            When equal to <paramref name="minimumFreeBytes"/>, the degraded state is effectively disabled.
+            </param>
+        </member>
+        <member name="M:JG.HealthKit.Checks.DiskSpaceHealthCheck.CheckAsync(JG.HealthKit.HealthCheckContext,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="T:JG.HealthKit.Checks.HttpHealthCheck">
+            <summary>
+            Health check that verifies an HTTP dependency is reachable and returning success status codes.
+            </summary>
+            <remarks>
+            Uses <see cref="T:System.Net.Http.IHttpClientFactory"/> for proper <see cref="T:System.Net.Http.HttpClient"/> lifecycle management.
+            Only reads response headers (does not buffer the body) to minimize overhead. Thread-safe.
+            </remarks>
+        </member>
+        <member name="M:JG.HealthKit.Checks.HttpHealthCheck.#ctor(System.Net.Http.IHttpClientFactory,System.String,System.Uri)">
+            <summary>
+            Initializes a new instance of <see cref="T:JG.HealthKit.Checks.HttpHealthCheck"/>.
+            </summary>
+            <param name="httpClientFactory">The HTTP client factory for creating clients.</param>
+            <param name="clientName">The named HTTP client identifier.</param>
+            <param name="uri">The URI to send a GET request to.</param>
+        </member>
+        <member name="M:JG.HealthKit.Checks.HttpHealthCheck.CheckAsync(JG.HealthKit.HealthCheckContext,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="T:JG.HealthKit.Checks.MemoryHealthCheck">
+            <summary>
+            Health check that monitors managed memory usage against configured thresholds.
+            </summary>
+            <remarks>
+            Reports GC heap allocated bytes along with generation collection counts.
+            Supports three-state reporting with degraded and unhealthy thresholds.
+            Completes synchronously (no I/O). Thread-safe.
+            </remarks>
+        </member>
+        <member name="M:JG.HealthKit.Checks.MemoryHealthCheck.#ctor(System.Int64,System.Int64)">
+            <summary>
+            Initializes a new instance of <see cref="T:JG.HealthKit.Checks.MemoryHealthCheck"/>.
+            </summary>
+            <param name="unhealthyThresholdBytes">
+            The allocated byte count above which the check reports unhealthy.
+            </param>
+            <param name="degradedThresholdBytes">
+            The allocated byte count above which the check reports degraded.
+            Must be less than or equal to <paramref name="unhealthyThresholdBytes"/>.
+            When equal to <paramref name="unhealthyThresholdBytes"/>, the degraded state is effectively disabled.
+            </param>
+        </member>
+        <member name="M:JG.HealthKit.Checks.MemoryHealthCheck.CheckAsync(JG.HealthKit.HealthCheckContext,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="T:JG.HealthKit.Checks.StartupHealthCheck">
+            <summary>
+            Health check that gates readiness on application startup completion.
+            </summary>
+            <remarks>
+            Reports <see cref="F:JG.HealthKit.HealthStatus.Unhealthy"/> until <see cref="M:JG.HealthKit.IStartupHealthSignal.MarkReady"/>
+            is called. This prevents Kubernetes readiness probes from routing traffic before
+            initialization is complete. Thread-safe.
+            </remarks>
+        </member>
+        <member name="M:JG.HealthKit.Checks.StartupHealthCheck.#ctor(JG.HealthKit.IStartupHealthSignal)">
+            <summary>
+            Initializes a new instance of <see cref="T:JG.HealthKit.Checks.StartupHealthCheck"/>.
+            </summary>
+            <param name="signal">The startup signal to observe.</param>
+        </member>
+        <member name="M:JG.HealthKit.Checks.StartupHealthCheck.CheckAsync(JG.HealthKit.HealthCheckContext,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="T:JG.HealthKit.Checks.TcpHealthCheck">
+            <summary>
+            Health check that verifies TCP connectivity to a remote host and port.
+            </summary>
+            <remarks>
+            Opens a TCP connection to the specified endpoint and reports healthy on success.
+            The connection is immediately closed after verification. Thread-safe.
+            </remarks>
+        </member>
+        <member name="M:JG.HealthKit.Checks.TcpHealthCheck.#ctor(System.String,System.Int32)">
+            <summary>
+            Initializes a new instance of <see cref="T:JG.HealthKit.Checks.TcpHealthCheck"/>.
+            </summary>
+            <param name="host">The hostname or IP address to connect to.</param>
+            <param name="port">The TCP port number.</param>
+        </member>
+        <member name="M:JG.HealthKit.Checks.TcpHealthCheck.CheckAsync(JG.HealthKit.HealthCheckContext,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="T:JG.HealthKit.Endpoints.HealthEndpointHandler">
+            <summary>
+            Handles HTTP requests for health check endpoints, coordinating the runner,
+            cache, and formatter to produce JSON responses.
+            </summary>
+            <remarks>
+            Designed as a singleton. The liveness and readiness endpoints run different
+            subsets of health checks based on their tags. Thread-safe.
+            </remarks>
+        </member>
+        <member name="M:JG.HealthKit.Endpoints.HealthEndpointHandler.HandleLivenessAsync(Microsoft.AspNetCore.Http.HttpContext)">
+            <summary>
+            Handles the liveness probe endpoint. Runs checks tagged with <c>"live"</c>.
+            Returns 200 when healthy or degraded, 503 when unhealthy.
+            </summary>
+        </member>
+        <member name="M:JG.HealthKit.Endpoints.HealthEndpointHandler.HandleReadinessAsync(Microsoft.AspNetCore.Http.HttpContext)">
+            <summary>
+            Handles the readiness probe endpoint. Runs checks tagged with <c>"ready"</c>.
+            Returns 200 when healthy or degraded, 503 when unhealthy.
+            </summary>
+        </member>
+        <member name="T:JG.HealthKit.HealthKitOptionsExtensions">
+            <summary>
+            Extension methods for registering built-in health checks on <see cref="T:JG.HealthKit.HealthKitOptions"/>.
+            </summary>
+        </member>
+        <member name="M:JG.HealthKit.HealthKitOptionsExtensions.AddSqlServer(JG.HealthKit.HealthKitOptions,System.String,System.String,System.Collections.Generic.IEnumerable{System.String},System.Nullable{System.TimeSpan})">
+            <summary>
+            Adds a SQL Server TCP connectivity check by parsing the connection string
+            to extract the server host and port.
+            </summary>
+            <param name="options">The options instance.</param>
+            <param name="connectionString">A SQL Server connection string.</param>
+            <param name="name">
+            An optional name for the check. Defaults to <c>sqlserver:host:port</c>.
+            </param>
+            <param name="tags">Tags for endpoint filtering. Defaults to <c>"ready"</c>.</param>
+            <param name="timeout">An optional per-check timeout.</param>
+            <returns>The options instance for chaining.</returns>
+            <exception cref="T:System.ArgumentException">
+            <paramref name="connectionString"/> is null, empty, or missing a server key.
+            </exception>
+            <remarks>
+            This performs a TCP-level connectivity check to the SQL Server endpoint.
+            For a full query-level check, use <see cref="M:JG.HealthKit.HealthKitOptionsExtensions.AddDatabaseCheck(JG.HealthKit.HealthKitOptions,System.String,System.Func{System.Data.Common.DbConnection},System.String,System.Collections.Generic.IEnumerable{System.String},System.Nullable{System.TimeSpan})"/> with a
+            <see cref="T:System.Data.Common.DbConnection"/> factory instead.
+            </remarks>
+        </member>
+        <member name="M:JG.HealthKit.HealthKitOptionsExtensions.AddHttpDependency(JG.HealthKit.HealthKitOptions,System.String,System.String,System.Collections.Generic.IEnumerable{System.String},System.Nullable{System.TimeSpan})">
+            <summary>
+            Adds an HTTP dependency health check that sends a GET request to the specified URL.
+            </summary>
+            <param name="options">The options instance.</param>
+            <param name="name">A unique name identifying the HTTP dependency.</param>
+            <param name="url">The URL to send a health check request to.</param>
+            <param name="tags">Tags for endpoint filtering. Defaults to <c>"ready"</c>.</param>
+            <param name="timeout">An optional per-check timeout.</param>
+            <returns>The options instance for chaining.</returns>
+            <exception cref="T:System.ArgumentException">
+            <paramref name="name"/> is null or whitespace, or <paramref name="url"/> is not a valid absolute URI.
+            </exception>
+        </member>
+        <member name="M:JG.HealthKit.HealthKitOptionsExtensions.AddDiskSpace(JG.HealthKit.HealthKitOptions,System.Int64,System.Nullable{System.Int64},System.String,System.String,System.Collections.Generic.IEnumerable{System.String})">
+            <summary>
+            Adds a disk space health check that monitors available free space on the specified drive.
+            </summary>
+            <param name="options">The options instance.</param>
+            <param name="threshold">The minimum free bytes below which the check reports unhealthy.</param>
+            <param name="degradedThreshold">
+            Optional threshold below which the check reports degraded.
+            Must be greater than or equal to <paramref name="threshold"/>.
+            </param>
+            <param name="driveName">
+            The drive or mount point to check. Defaults to the OS root drive
+            (<c>C:\</c> on Windows, <c>/</c> on Linux).
+            </param>
+            <param name="name">An optional name for the check. Defaults to <c>disk-space</c>.</param>
+            <param name="tags">Tags for endpoint filtering. Defaults to <c>"ready"</c>.</param>
+            <returns>The options instance for chaining.</returns>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            <paramref name="threshold"/> is negative, or <paramref name="degradedThreshold"/> is less than <paramref name="threshold"/>.
+            </exception>
+        </member>
+        <member name="M:JG.HealthKit.HealthKitOptionsExtensions.AddMemoryCheck(JG.HealthKit.HealthKitOptions,System.Int64,System.Nullable{System.Int64},System.String,System.Collections.Generic.IEnumerable{System.String})">
+            <summary>
+            Adds a memory health check that monitors managed heap allocation.
+            </summary>
+            <param name="options">The options instance.</param>
+            <param name="unhealthyThreshold">
+            The allocated byte count above which the check reports unhealthy.
+            Defaults to 1 GB.
+            </param>
+            <param name="degradedThreshold">
+            The allocated byte count above which the check reports degraded.
+            Must be less than or equal to <paramref name="unhealthyThreshold"/>.
+            Defaults to <paramref name="unhealthyThreshold"/> (degraded state disabled).
+            </param>
+            <param name="name">An optional name for the check. Defaults to <c>memory</c>.</param>
+            <param name="tags">Tags for endpoint filtering. Defaults to <c>"ready"</c>.</param>
+            <returns>The options instance for chaining.</returns>
+        </member>
+        <member name="M:JG.HealthKit.HealthKitOptionsExtensions.AddTcp(JG.HealthKit.HealthKitOptions,System.String,System.String,System.Int32,System.Collections.Generic.IEnumerable{System.String},System.Nullable{System.TimeSpan})">
+            <summary>
+            Adds a TCP connectivity health check to the specified host and port.
+            </summary>
+            <param name="options">The options instance.</param>
+            <param name="name">A unique name for the check.</param>
+            <param name="host">The hostname or IP address.</param>
+            <param name="port">The TCP port number (1–65535).</param>
+            <param name="tags">Tags for endpoint filtering. Defaults to <c>"ready"</c>.</param>
+            <param name="timeout">An optional per-check timeout.</param>
+            <returns>The options instance for chaining.</returns>
+        </member>
+        <member name="M:JG.HealthKit.HealthKitOptionsExtensions.AddDatabaseCheck(JG.HealthKit.HealthKitOptions,System.String,System.Func{System.Data.Common.DbConnection},System.String,System.Collections.Generic.IEnumerable{System.String},System.Nullable{System.TimeSpan})">
+            <summary>
+            Adds a database health check using a caller-provided <see cref="T:System.Data.Common.DbConnection"/> factory.
+            </summary>
+            <param name="options">The options instance.</param>
+            <param name="name">A unique name for the check.</param>
+            <param name="connectionFactory">
+            A factory that creates a new <see cref="T:System.Data.Common.DbConnection"/>. The connection is opened
+            and disposed on each health check invocation.
+            </param>
+            <param name="testQuery">
+            An optional SQL query to execute after opening the connection (e.g., <c>"SELECT 1"</c>).
+            </param>
+            <param name="tags">Tags for endpoint filtering. Defaults to <c>"ready"</c>.</param>
+            <param name="timeout">An optional per-check timeout.</param>
+            <returns>The options instance for chaining.</returns>
+            <exception cref="T:System.ArgumentNullException"><paramref name="connectionFactory"/> is <see langword="null"/>.</exception>
+            <example>
+            <code>
+            options.AddDatabaseCheck("mydb",
+                () => new SqlConnection(connectionString),
+                testQuery: "SELECT 1");
+            </code>
+            </example>
+        </member>
+        <member name="M:JG.HealthKit.HealthKitOptionsExtensions.AddStartupCheck(JG.HealthKit.HealthKitOptions,System.Collections.Generic.IEnumerable{System.String})">
+            <summary>
+            Adds a startup health check that gates readiness until
+            <see cref="M:JG.HealthKit.IStartupHealthSignal.MarkReady"/> is called.
+            </summary>
+            <param name="options">The options instance.</param>
+            <param name="tags">Tags for endpoint filtering. Defaults to <c>"ready"</c>.</param>
+            <returns>The options instance for chaining.</returns>
+            <remarks>
+            After calling this method, inject <see cref="T:JG.HealthKit.IStartupHealthSignal"/> into your
+            startup logic and call <see cref="M:JG.HealthKit.IStartupHealthSignal.MarkReady"/> when initialization
+            is complete. The readiness endpoint will return unhealthy until then.
+            </remarks>
+        </member>
+        <member name="T:JG.HealthKit.HealthKitOptions">
+            <summary>
+            Configuration options for the HealthKit health check system.
+            </summary>
+            <remarks>
+            Use this class within <c>AddHealthKit</c> to register health checks, configure
+            caching, timeouts, and endpoint paths. Once sealed during service registration,
+            the options become immutable.
+            </remarks>
+        </member>
+        <member name="P:JG.HealthKit.HealthKitOptions.CacheDuration">
+            <summary>
+            Gets or sets the duration for which health check results are cached.
+            Set to <see cref="F:System.TimeSpan.Zero"/> (the default) to disable caching.
+            </summary>
+        </member>
+        <member name="P:JG.HealthKit.HealthKitOptions.DefaultTimeout">
+            <summary>
+            Gets or sets the default timeout applied to individual health checks
+            that do not specify their own timeout. Defaults to 30 seconds.
+            </summary>
+        </member>
+        <member name="P:JG.HealthKit.HealthKitOptions.LivenessPath">
+            <summary>
+            Gets or sets the URL path for the liveness probe endpoint. Defaults to <c>/health/live</c>.
+            </summary>
+        </member>
+        <member name="P:JG.HealthKit.HealthKitOptions.ReadinessPath">
+            <summary>
+            Gets or sets the URL path for the readiness probe endpoint. Defaults to <c>/health/ready</c>.
+            </summary>
+        </member>
+        <member name="P:JG.HealthKit.HealthKitOptions.Registrations">
+            <summary>
+            Gets the list of registered health check registrations.
+            </summary>
+        </member>
+        <member name="P:JG.HealthKit.HealthKitOptions.CheckTypes">
+            <summary>
+            Gets the list of check types that need to be registered in DI.
+            </summary>
+        </member>
+        <member name="P:JG.HealthKit.HealthKitOptions.RequiresStartupSignal">
+            <summary>
+            Gets or sets whether a startup signal is required.
+            </summary>
+        </member>
+        <member name="M:JG.HealthKit.HealthKitOptions.AddCheck(System.String,JG.HealthKit.IHealthCheck,JG.HealthKit.HealthStatus,System.Collections.Generic.IEnumerable{System.String},System.Nullable{System.TimeSpan})">
+            <summary>
+            Registers a health check instance with the specified name.
+            </summary>
+            <param name="name">A unique name for the health check.</param>
+            <param name="instance">The health check instance.</param>
+            <param name="failureStatus">The status to report on unhandled exceptions.</param>
+            <param name="tags">Tags for endpoint filtering. Defaults to <c>"ready"</c> if not specified.</param>
+            <param name="timeout">An optional per-check timeout override.</param>
+            <returns>This options instance for chaining.</returns>
+            <exception cref="T:System.ArgumentException"><paramref name="name"/> is null or whitespace.</exception>
+            <exception cref="T:System.ArgumentNullException"><paramref name="instance"/> is <see langword="null"/>.</exception>
+            <exception cref="T:System.InvalidOperationException">Options have been sealed after service registration.</exception>
+        </member>
+        <member name="M:JG.HealthKit.HealthKitOptions.AddCheck(System.String,System.Func{System.IServiceProvider,JG.HealthKit.IHealthCheck},JG.HealthKit.HealthStatus,System.Collections.Generic.IEnumerable{System.String},System.Nullable{System.TimeSpan})">
+            <summary>
+            Registers a health check using a factory delegate resolved from the service provider.
+            </summary>
+            <param name="name">A unique name for the health check.</param>
+            <param name="factory">A factory that receives <see cref="T:System.IServiceProvider"/> and returns an <see cref="T:JG.HealthKit.IHealthCheck"/>.</param>
+            <param name="failureStatus">The status to report on unhandled exceptions.</param>
+            <param name="tags">Tags for endpoint filtering. Defaults to <c>"ready"</c> if not specified.</param>
+            <param name="timeout">An optional per-check timeout override.</param>
+            <returns>This options instance for chaining.</returns>
+            <exception cref="T:System.ArgumentException"><paramref name="name"/> is null or whitespace.</exception>
+            <exception cref="T:System.ArgumentNullException"><paramref name="factory"/> is <see langword="null"/>.</exception>
+            <exception cref="T:System.InvalidOperationException">Options have been sealed after service registration.</exception>
+        </member>
+        <member name="M:JG.HealthKit.HealthKitOptions.AddCheck``1(System.String,JG.HealthKit.HealthStatus,System.Collections.Generic.IEnumerable{System.String},System.Nullable{System.TimeSpan})">
+            <summary>
+            Registers a health check type that is resolved from the service provider.
+            The type is automatically registered in DI as transient if not already registered.
+            </summary>
+            <typeparam name="T">The health check implementation type.</typeparam>
+            <param name="name">A unique name for the health check.</param>
+            <param name="failureStatus">The status to report on unhandled exceptions.</param>
+            <param name="tags">Tags for endpoint filtering. Defaults to <c>"ready"</c> if not specified.</param>
+            <param name="timeout">An optional per-check timeout override.</param>
+            <returns>This options instance for chaining.</returns>
+            <exception cref="T:System.ArgumentException"><paramref name="name"/> is null or whitespace.</exception>
+            <exception cref="T:System.InvalidOperationException">Options have been sealed after service registration.</exception>
+        </member>
+        <member name="M:JG.HealthKit.HealthKitOptions.AddCheck(System.String,System.Func{System.Threading.CancellationToken,System.Threading.Tasks.ValueTask{JG.HealthKit.HealthCheckResult}},JG.HealthKit.HealthStatus,System.Collections.Generic.IEnumerable{System.String},System.Nullable{System.TimeSpan})">
+            <summary>
+            Registers an inline health check using a delegate.
+            </summary>
+            <param name="name">A unique name for the health check.</param>
+            <param name="check">The delegate to execute as the health check.</param>
+            <param name="failureStatus">The status to report on unhandled exceptions.</param>
+            <param name="tags">Tags for endpoint filtering. Defaults to <c>"ready"</c> if not specified.</param>
+            <param name="timeout">An optional per-check timeout override.</param>
+            <returns>This options instance for chaining.</returns>
+            <exception cref="T:System.ArgumentException"><paramref name="name"/> is null or whitespace.</exception>
+            <exception cref="T:System.ArgumentNullException"><paramref name="check"/> is <see langword="null"/>.</exception>
+            <exception cref="T:System.InvalidOperationException">Options have been sealed after service registration.</exception>
+        </member>
+        <member name="M:JG.HealthKit.HealthKitOptions.GetLiveRegistrations">
+            <summary>
+            Gets the pre-filtered list of registrations for the liveness endpoint.
+            </summary>
+        </member>
+        <member name="M:JG.HealthKit.HealthKitOptions.GetReadyRegistrations">
+            <summary>
+            Gets the pre-filtered list of registrations for the readiness endpoint.
+            </summary>
+        </member>
+        <member name="M:JG.HealthKit.HealthKitOptions.Seal">
+            <summary>
+            Seals the options to prevent further modifications.
+            Called during service registration.
+            </summary>
+        </member>
+        <member name="T:JG.HealthKit.Internal.ConnectionStringParser">
+            <summary>
+            Parses SQL Server connection strings to extract host and port for TCP health checks.
+            </summary>
+            <remarks>
+            Handles standard SQL Server connection string formats:
+            <c>Server=host</c>, <c>Server=host,port</c>, <c>Server=tcp:host,port</c>,
+            <c>Data Source=host\instance</c>. Defaults to port 1433 when not specified.
+            </remarks>
+        </member>
+        <member name="M:JG.HealthKit.Internal.ConnectionStringParser.Parse(System.String)">
+            <summary>
+            Extracts the host and port from a SQL Server connection string.
+            </summary>
+            <param name="connectionString">The SQL Server connection string.</param>
+            <returns>A tuple of (host, port).</returns>
+            <exception cref="T:System.ArgumentException">The connection string is null, empty, or missing a server key.</exception>
+        </member>
+        <member name="T:JG.HealthKit.Internal.HealthCheckCache">
+            <summary>
+            Thread-safe TTL cache for health check reports, preventing check storms under load.
+            </summary>
+            <remarks>
+            Uses a double-check locking pattern with <see cref="T:System.Threading.SemaphoreSlim"/> to ensure
+            only one execution occurs per cache key when the cache expires. The fast path
+            (cache hit) is lock-free. This type is thread-safe and designed for singleton use.
+            </remarks>
+        </member>
+        <member name="M:JG.HealthKit.Internal.HealthCheckCache.#ctor(System.TimeSpan)">
+            <summary>
+            Initializes a new instance of <see cref="T:JG.HealthKit.Internal.HealthCheckCache"/>.
+            </summary>
+            <param name="cacheDuration">
+            The duration to cache results. Use <see cref="F:System.TimeSpan.Zero"/> to disable caching.
+            </param>
+        </member>
+        <member name="M:JG.HealthKit.Internal.HealthCheckCache.GetOrRunAsync(System.String,System.Func{System.Threading.CancellationToken,System.Threading.Tasks.ValueTask{JG.HealthKit.HealthReport}},System.Threading.CancellationToken)">
+            <summary>
+            Gets a cached report or executes the factory to produce a fresh one.
+            </summary>
+            <param name="key">The cache key (e.g., "live" or "ready").</param>
+            <param name="factory">The factory to produce a report on cache miss.</param>
+            <param name="cancellationToken">A token to observe for cancellation.</param>
+            <returns>The cached or freshly produced <see cref="T:JG.HealthKit.HealthReport"/>.</returns>
+        </member>
+        <member name="M:JG.HealthKit.Internal.HealthCheckCache.Dispose">
+            <inheritdoc />
+        </member>
+        <member name="T:JG.HealthKit.Internal.HealthCheckRunner">
+            <summary>
+            Executes health check registrations concurrently and aggregates results into a <see cref="T:JG.HealthKit.HealthReport"/>.
+            </summary>
+            <remarks>
+            Each check runs with its own timeout (or the default from <see cref="T:JG.HealthKit.HealthKitOptions"/>).
+            Exceptions are caught and converted to <see cref="F:JG.HealthKit.HealthStatus.Unhealthy"/> results.
+            This type is thread-safe and designed for use as a singleton.
+            </remarks>
+        </member>
+        <member name="M:JG.HealthKit.Internal.HealthCheckRunner.RunAsync(System.Collections.Generic.IReadOnlyList{JG.HealthKit.HealthCheckRegistration},System.Threading.CancellationToken)">
+            <summary>
+            Runs all specified health check registrations and returns an aggregated report.
+            </summary>
+            <param name="registrations">The checks to execute.</param>
+            <param name="cancellationToken">A token to observe for cancellation.</param>
+            <returns>A <see cref="T:JG.HealthKit.HealthReport"/> containing all check results.</returns>
+        </member>
+        <member name="T:JG.HealthKit.Internal.StartupHealthSignal">
+            <summary>
+            Thread-safe implementation of <see cref="T:JG.HealthKit.IStartupHealthSignal"/>.
+            </summary>
+        </member>
+        <member name="P:JG.HealthKit.Internal.StartupHealthSignal.IsReady">
+            <inheritdoc />
+        </member>
+        <member name="M:JG.HealthKit.Internal.StartupHealthSignal.MarkReady">
+            <inheritdoc />
+        </member>
+        <member name="T:JG.HealthKit.Reporting.JsonHealthReportFormatter">
+            <summary>
+            Formats a <see cref="T:JG.HealthKit.HealthReport"/> as JSON using <see cref="T:System.Text.Json.Utf8JsonWriter"/>
+            for zero-allocation serialization.
+            </summary>
+            <remarks>
+            Produces a compact JSON document with status, total duration, and per-check entries.
+            Exception details are intentionally excluded from the output for security.
+            This type is thread-safe and stateless.
+            </remarks>
+        </member>
+        <member name="P:JG.HealthKit.Reporting.JsonHealthReportFormatter.ContentType">
+            <inheritdoc />
+        </member>
+        <member name="M:JG.HealthKit.Reporting.JsonHealthReportFormatter.WriteAsync(System.IO.Stream,JG.HealthKit.HealthReport,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="T:Microsoft.AspNetCore.Builder.HealthKitEndpointExtensions">
+            <summary>
+            Extension methods for mapping HealthKit endpoints on the ASP.NET Core routing pipeline.
+            </summary>
+        </member>
+        <member name="M:Microsoft.AspNetCore.Builder.HealthKitEndpointExtensions.MapHealthKit(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder)">
+            <summary>
+            Maps the HealthKit liveness and readiness probe endpoints.
+            </summary>
+            <param name="endpoints">The endpoint route builder.</param>
+            <returns>The <see cref="T:Microsoft.AspNetCore.Routing.IEndpointRouteBuilder"/> for chaining.</returns>
+            <exception cref="T:System.ArgumentNullException"><paramref name="endpoints"/> is <see langword="null"/>.</exception>
+            <remarks>
+            By default, maps <c>GET /health/live</c> and <c>GET /health/ready</c>.
+            Paths are configurable via <see cref="P:JG.HealthKit.HealthKitOptions.LivenessPath"/> and
+            <see cref="P:JG.HealthKit.HealthKitOptions.ReadinessPath"/>.
+            </remarks>
+            <example>
+            <code>
+            app.MapHealthKit();
+            </code>
+            </example>
+        </member>
+        <member name="T:Microsoft.Extensions.DependencyInjection.HealthKitServiceCollectionExtensions">
+            <summary>
+            Extension methods for registering HealthKit services in the dependency injection container.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Extensions.DependencyInjection.HealthKitServiceCollectionExtensions.AddHealthKit(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Action{JG.HealthKit.HealthKitOptions})">
+            <summary>
+            Adds HealthKit health check services to the specified <see cref="T:Microsoft.Extensions.DependencyInjection.IServiceCollection"/>.
+            </summary>
+            <param name="services">The service collection to add services to.</param>
+            <param name="configure">A delegate to configure <see cref="T:JG.HealthKit.HealthKitOptions"/>.</param>
+            <returns>The <see cref="T:Microsoft.Extensions.DependencyInjection.IServiceCollection"/> for chaining.</returns>
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="services"/> or <paramref name="configure"/> is <see langword="null"/>.
+            </exception>
+            <example>
+            <code>
+            builder.Services.AddHealthKit(options =>
+            {
+                options.AddHttpDependency("api", "https://api.example.com/health");
+                options.AddDiskSpace(threshold: 500_000_000);
+                options.CacheDuration = TimeSpan.FromSeconds(10);
+            });
+            </code>
+            </example>
+        </member>
+    </members>
+</doc>

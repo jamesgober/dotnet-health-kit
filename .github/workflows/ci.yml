@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [main]
 
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
 jobs:
   build:
     runs-on: ${{ matrix.os }}
@@ -29,4 +33,15 @@ jobs:
         run: dotnet build --no-restore --configuration Release -warnaserror
 
       - name: Test
-        run: dotnet test --no-build --configuration Release --verbosity normal
+        run: dotnet test --no-build --configuration Release --verbosity normal --collect:"XPlat Code Coverage"
+
+      - name: Pack
+        if: matrix.os == 'ubuntu-latest'
+        run: dotnet pack src/dotnet-health-kit/dotnet-health-kit.csproj --no-build --configuration Release --output ./artifacts
+
+      - name: Upload artifacts
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-package
+          path: ./artifacts/*.nupkg

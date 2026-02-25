@@ -1,0 +1,23 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v8.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v8.0": {
+      "JG.HealthKit/1.0.0": {
+        "runtime": {
+          "JG.HealthKit.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "JG.HealthKit/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

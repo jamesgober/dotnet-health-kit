@@ -1,0 +1,14 @@
+C:\Dev\libs\dotnet\dotnet-health-kit\src\dotnet-health-kit\bin\Release\net8.0\JG.HealthKit.deps.json
+C:\Dev\libs\dotnet\dotnet-health-kit\src\dotnet-health-kit\bin\Release\net8.0\JG.HealthKit.dll
+C:\Dev\libs\dotnet\dotnet-health-kit\src\dotnet-health-kit\bin\Release\net8.0\JG.HealthKit.pdb
+C:\Dev\libs\dotnet\dotnet-health-kit\src\dotnet-health-kit\bin\Release\net8.0\JG.HealthKit.xml
+C:\Dev\libs\dotnet\dotnet-health-kit\src\dotnet-health-kit\obj\Release\net8.0\dotnet-health-kit.GeneratedMSBuildEditorConfig.editorconfig
+C:\Dev\libs\dotnet\dotnet-health-kit\src\dotnet-health-kit\obj\Release\net8.0\dotnet-health-kit.AssemblyInfoInputs.cache
+C:\Dev\libs\dotnet\dotnet-health-kit\src\dotnet-health-kit\obj\Release\net8.0\dotnet-health-kit.AssemblyInfo.cs
+C:\Dev\libs\dotnet\dotnet-health-kit\src\dotnet-health-kit\obj\Release\net8.0\dotnet-health-kit.csproj.CoreCompileInputs.cache
+C:\Dev\libs\dotnet\dotnet-health-kit\src\dotnet-health-kit\obj\Release\net8.0\dotnet-health-kit.sourcelink.json
+C:\Dev\libs\dotnet\dotnet-health-kit\src\dotnet-health-kit\obj\Release\net8.0\JG.HealthKit.dll
+C:\Dev\libs\dotnet\dotnet-health-kit\src\dotnet-health-kit\obj\Release\net8.0\refint\JG.HealthKit.dll
+C:\Dev\libs\dotnet\dotnet-health-kit\src\dotnet-health-kit\obj\Release\net8.0\JG.HealthKit.xml
+C:\Dev\libs\dotnet\dotnet-health-kit\src\dotnet-health-kit\obj\Release\net8.0\JG.HealthKit.pdb
+C:\Dev\libs\dotnet\dotnet-health-kit\src\dotnet-health-kit\obj\Release\net8.0\ref\JG.HealthKit.dll
