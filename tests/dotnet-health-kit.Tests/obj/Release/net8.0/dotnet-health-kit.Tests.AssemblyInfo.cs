@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("JG.HealthKit.Tests")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+25e8f4096fbf60d2f0195fe12a73f2b008fc3114")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6f8330b5665c2a3b9cd6a94f1d39e301803e6196")]
 [assembly: System.Reflection.AssemblyProductAttribute("JG.HealthKit.Tests")]
 [assembly: System.Reflection.AssemblyTitleAttribute("JG.HealthKit.Tests")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
